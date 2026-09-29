@@ -1,0 +1,261 @@
+@import '@fontsource-variable/geist';
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
+ * Design tokens. Values come from the Figma file (Desktop - 3, Upload modal);
+ * a few are adjusted to meet WCAG 2.2 AA contrast — noted inline.
+ */
+:root {
+  color-scheme: light;
+
+  --c-bg: #f8f8f8;
+  --c-surface: #ffffff;
+  --c-surface-2: #f3f5f7;
+  --c-surface-3: #fcfbfc;
+  --c-hover: rgb(0 0 0 / 0.05);
+  --c-active: #e1e1e1;
+  --c-border: #e6e6e6;
+  --c-border-card: #ebeaea;
+  /* Figma uses #e6e6e6 on inputs (1.2:1). Form controls need 3:1 (WCAG 1.4.11). */
+  --c-border-control: #949494;
+
+  --c-text: #0a0a0a;
+  /* Figma uses 30–60% black; raised so text reaches 4.5:1 on every surface. */
+  --c-text-2: #595959;
+  --c-text-3: #6b6b6b;
+
+  --c-primary: #0a0a0a;
+  --c-on-primary: #ffffff;
+  --c-primary-hover: #333333;
+
+  --c-accent: #1a66d6;
+  --c-accent-hover: #1558ba;
+  --c-on-accent: #ffffff;
+  --c-accent-soft: #e8f2ff;
+  --c-accent-border: #2d86c4;
+
+  --c-danger: #c42525;
+  --c-danger-solid: #d92d2d;
+  --c-danger-soft: #fdecec;
+  --c-success: #1e7d3c;
+  --c-success-soft: #e6f4ea;
+  --c-warning: #8a5300;
+  --c-warning-soft: #fff4e0;
+
+  --c-track: #eaeaea;
+  --c-chart-blue: #2585fb;
+  --c-chart-red: #f26361;
+
+  --c-focus: #1a66d6;
+  --shadow-card: 0 2px 10px 0 rgb(0 0 0 / 0.25);
+  --shadow-pop: 0 8px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
+  --c-scrim: rgb(0 0 0 / 0.4);
+
+  /* Folder artwork — light */
+  --folder-grey-back: #ececec;
+  --folder-grey-sheet: #dbdbdb;
+  --folder-grey-sheet-2: #dbdbdb;
+  --folder-grey-paper: #ffffff;
+  --folder-grey-top: #f5f5f5;
+  --folder-grey-bottom: #d8d8d8;
+  --folder-grey-text: #444242;
+
+  --folder-blue-back: #77b4ff;
+  --folder-blue-sheet: #a3cbfc;
+  --folder-blue-sheet-2: #94c2fb;
+  --folder-blue-paper: #ffffff;
+  --folder-blue-top: #a1c7f6;
+  --folder-blue-bottom: #4396fd;
+  /* Figma uses near-white text here (≈3:1). Dark navy passes 5.6:1 or better. */
+  --folder-blue-text: #0b1b33;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --c-bg: #0e0e10;
+  --c-surface: #17171a;
+  --c-surface-2: #1f1f23;
+  --c-surface-3: #1b1b1e;
+  --c-hover: rgb(255 255 255 / 0.06);
+  --c-active: #2c2c31;
+  --c-border: #2c2c31;
+  --c-border-card: #2c2c31;
+  --c-border-control: #74747d;
+
+  --c-text: #f3f3f5;
+  --c-text-2: #b9b9c0;
+  --c-text-3: #a3a3ab;
+
+  --c-primary: #f3f3f5;
+  --c-on-primary: #0a0a0a;
+  --c-primary-hover: #d4d4d8;
+
+  --c-accent: #7cb0ff;
+  --c-accent-hover: #a3c8ff;
+  --c-on-accent: #0a0a0a;
+  --c-accent-soft: #15243a;
+  --c-accent-border: #4f8fd0;
+
+  --c-danger: #ff8a8a;
+  --c-danger-solid: #d92d2d;
+  --c-danger-soft: #3a1717;
+  --c-success: #6fd394;
+  --c-success-soft: #14301f;
+  --c-warning: #f2b75b;
+  --c-warning-soft: #33250f;
+
+  --c-track: #2c2c31;
+  --c-chart-blue: #4d9bff;
+  --c-chart-red: #f47a78;
+
+  --c-focus: #8ab8ff;
+  --shadow-card: 0 2px 10px 0 rgb(0 0 0 / 0.6);
+  --shadow-pop: 0 8px 30px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --c-scrim: rgb(0 0 0 / 0.65);
+
+  --folder-grey-back: #2a2a2f;
+  --folder-grey-sheet: #36363c;
+  --folder-grey-sheet-2: #3b3b42;
+  --folder-grey-paper: #4c4c54;
+  --folder-grey-top: #37373d;
+  --folder-grey-bottom: #232327;
+  --folder-grey-text: #ececf0;
+
+  --folder-blue-back: #1f4d8a;
+  --folder-blue-sheet: #2a5fa6;
+  --folder-blue-sheet-2: #2657a0;
+  --folder-blue-paper: #4a7cc4;
+  --folder-blue-top: #2d63b0;
+  --folder-blue-bottom: #1a4583;
+  --folder-blue-text: #ffffff;
+}
+
+@theme inline {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --breakpoint-xl: 75rem;
+
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
+  --color-hover: var(--c-hover);
+  --color-active: var(--c-active);
+  --color-line: var(--c-border);
+  --color-line-card: var(--c-border-card);
+  --color-line-control: var(--c-border-control);
+  --color-fg: var(--c-text);
+  --color-fg-2: var(--c-text-2);
+  --color-fg-3: var(--c-text-3);
+  --color-primary: var(--c-primary);
+  --color-on-primary: var(--c-on-primary);
+  --color-primary-hover: var(--c-primary-hover);
+  --color-accent: var(--c-accent);
+  --color-accent-hover: var(--c-accent-hover);
+  --color-on-accent: var(--c-on-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-accent-border: var(--c-accent-border);
+  --color-danger: var(--c-danger);
+  --color-danger-solid: var(--c-danger-solid);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-success: var(--c-success);
+  --color-success-soft: var(--c-success-soft);
+  --color-warning: var(--c-warning);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-track: var(--c-track);
+  --color-chart-blue: var(--c-chart-blue);
+  --color-chart-red: var(--c-chart-red);
+  --color-focus: var(--c-focus);
+  --color-scrim: var(--c-scrim);
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible, consistent keyboard focus (WCAG 2.4.7 / 2.4.11). In the base layer so utilities can refine it. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 2px;
+  }
+  /* Headings receive programmatic focus after navigation; no ring needed there. */
+  [data-page-title]:focus {
+    outline: none;
+  }
+}
+
+/* Larger hit areas on touch screens (Material 48dp guidance; WCAG 2.5.8 is met everywhere). */
+@media (pointer: coarse) {
+  .tap {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  from { background-position: -200px 0; }
+  to { background-position: calc(200px + 100%) 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--c-surface-2) 0, var(--c-active) 40%, var(--c-surface-2) 80%) no-repeat;
+  background-size: 200px 100%;
+  background-color: var(--c-surface-2);
+  animation: shimmer 1.2s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.anim-fade { animation: fade-in 150ms ease-out; }
+.anim-pop { animation: pop-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1); }
+.anim-left { animation: slide-in-left 200ms cubic-bezier(0.2, 0.9, 0.3, 1); }
+.anim-right { animation: slide-in-right 200ms cubic-bezier(0.2, 0.9, 0.3, 1); }
+.anim-toast { animation: toast-in 180ms ease-out; }
+
+/* Hide the native search clear button; we provide our own. */
+input[type='search']::-webkit-search-cancel-button { -webkit-appearance: none; }

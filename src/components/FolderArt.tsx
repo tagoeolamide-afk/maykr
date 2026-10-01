@@ -41,7 +41,7 @@ export function FolderArt({ color, width = ART_WIDTH }: { color: FolderColor; wi
           <feOffset dy="4.42848" />
           <feGaussianBlur stdDeviation="5.5356" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0" />
           <feBlend mode="normal" in2="BackgroundImageFix" result="shadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="shadow" result="shape" />
         </filter>

@@ -49,8 +49,9 @@
   --c-chart-red: #f26361;
 
   --c-focus: #1a66d6;
-  --shadow-card: 0 2px 10px 0 rgb(0 0 0 / 0.25);
-  --shadow-pop: 0 8px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
+  /* Figma used 0 2px 10px rgba(0,0,0,.25); softened to a two-layer shadow. */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.06);
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.05);
   --c-scrim: rgb(0 0 0 / 0.4);
 
   /* Folder artwork — light */
@@ -112,8 +113,8 @@
   --c-chart-red: #f47a78;
 
   --c-focus: #8ab8ff;
-  --shadow-card: 0 2px 10px 0 rgb(0 0 0 / 0.6);
-  --shadow-pop: 0 8px 30px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 8px rgb(0 0 0 / 0.25);
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(255 255 255 / 0.06);
   --c-scrim: rgb(0 0 0 / 0.65);
 
   --folder-grey-back: #2a2a2f;

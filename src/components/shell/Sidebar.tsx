@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import avatar from '../../assets/avatar.png'
 import logo from '../../assets/logo.svg'
 import { Link, navigate, useRoute } from '../../lib/router'
@@ -17,6 +18,64 @@ const primaryNav: { id: string; label: string; icon: IconName }[] = [
 ]
 
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform)
+
+/** Projects listed under "Projects" before a "Show all" link takes over. */
+const MAX_PROJECTS = 5
+
+/** First few projects, always including the one that's open. */
+function visibleProjects<T extends { id: string }>(projects: T[], activeId?: string) {
+  const first = projects.slice(0, MAX_PROJECTS)
+  const active = projects.find((p) => p.id === activeId)
+  if (!active || first.includes(active)) return first
+  return [...first.slice(0, MAX_PROJECTS - 1), active]
+}
+
+/**
+ * Scroll area for the main nav. Shows a soft fade at whichever edge has more
+ * items hidden, so it's clear the list continues (short screens, touch rows).
+ */
+function ScrollFade({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [edges, setEdges] = useState({ top: false, bottom: false })
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () =>
+      setEdges({ top: el.scrollTop > 1, bottom: el.scrollTop + el.clientHeight < el.scrollHeight - 1 })
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    if (el.firstElementChild) ro.observe(el.firstElementChild)
+    return () => {
+      el.removeEventListener('scroll', update)
+      ro.disconnect()
+    }
+  }, [])
+
+  return (
+    <div className="relative flex min-h-0 flex-col">
+      <div ref={ref} className="min-h-0 overflow-y-auto overscroll-contain">
+        {children}
+      </div>
+      <div
+        aria-hidden
+        className={cx(
+          'pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-surface to-transparent transition-opacity',
+          edges.top ? 'opacity-100' : 'opacity-0',
+        )}
+      />
+      <div
+        aria-hidden
+        className={cx(
+          'pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-surface to-transparent transition-opacity',
+          edges.bottom ? 'opacity-100' : 'opacity-0',
+        )}
+      />
+    </div>
+  )
+}
 
 /** Row style from the design: 16px medium label, 18px icon, inactive rows de-emphasised. */
 function rowClass(active: boolean, collapsed: boolean) {
@@ -53,7 +112,7 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
     )
 
   return (
-    <div className={cx('flex h-full flex-col gap-[38px] bg-surface p-4', collapsed ? 'w-[76px]' : 'w-[251px]')}>
+    <div className={cx('flex h-full flex-col gap-4 bg-surface p-4', collapsed ? 'w-[76px]' : 'w-[251px]')}>
       <div className={cx('flex items-center', collapsed ? 'flex-col gap-3' : 'justify-between px-[10px]')}>
         <Link to="/home" onClick={go} className="flex items-center gap-[6px] rounded-[8px]" aria-label="Mayker home">
           <img src={logo} alt="" width={25.0006} height={26.6133} className="block shrink-0" />
@@ -70,82 +129,95 @@ export function Sidebar({ collapsed = false, onNavigate }: { collapsed?: boolean
         )}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col justify-between gap-6">
-        <nav aria-label="Main" className="flex min-h-0 flex-col gap-5 overflow-y-auto">
-          {withTip(
-            'Search',
-            <button
-              type="button"
-              onClick={() => {
-                go()
-                setPaletteOpen(true)
-              }}
-              className={cx(rowClass(false, collapsed), 'justify-between')}
-            >
-              <span className="flex items-center gap-2">
-                <Icon name="search-02" />
-                {label('Search')}
-              </span>
-              {!collapsed && <Kbd>{isMac ? '⌘K' : 'Ctrl K'}</Kbd>}
-            </button>,
-          )}
-
-          <ul className="flex flex-col gap-5">
-            {primaryNav.map((item) => {
-              const active = section === item.id
-              return (
-                <li key={item.id}>
-                  {withTip(
-                    item.label,
-                    <Link
-                      to={`/${item.id}`}
-                      onClick={go}
-                      aria-current={active ? 'page' : undefined}
-                      className={cx(rowClass(active, collapsed), 'justify-between')}
-                    >
-                      <span className="flex items-center gap-2">
-                        <Icon name={item.icon} />
-                        {label(item.label)}
-                      </span>
-                      {item.id === 'emails' && unreadMail > 0 && !collapsed && (
-                        <span className="text-[12px] font-semibold text-fg-2">
-                          {unreadMail}
-                          <span className="sr-only"> unread</span>
+      <div className="flex min-h-0 flex-1 flex-col justify-between gap-4">
+        <ScrollFade>
+          <nav aria-label="Main" className="flex flex-col gap-1">
+            {withTip(
+              'Search',
+              <button
+                type="button"
+                onClick={() => {
+                  go()
+                  setPaletteOpen(true)
+                }}
+                className={cx(rowClass(false, collapsed), 'justify-between')}
+              >
+                <span className="flex items-center gap-2">
+                  <Icon name="search-02" />
+                  {label('Search')}
+                </span>
+                {!collapsed && <Kbd>{isMac ? '⌘K' : 'Ctrl K'}</Kbd>}
+              </button>,
+            )}
+  
+            <ul className="flex flex-col gap-1">
+              {primaryNav.map((item) => {
+                const active = section === item.id
+                return (
+                  <li key={item.id}>
+                    {withTip(
+                      item.label,
+                      <Link
+                        to={`/${item.id}`}
+                        onClick={go}
+                        aria-current={active ? 'page' : undefined}
+                        className={cx(rowClass(active, collapsed), 'justify-between')}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Icon name={item.icon} />
+                          {label(item.label)}
                         </span>
-                      )}
-                    </Link>,
-                  )}
-
-                  {item.id === 'projects' && active && !collapsed && projects.length > 0 && (
-                    <ul className="mt-[10px] ml-[36px] flex flex-col gap-[6px]" aria-label="Projects">
-                      {projects.map((p) => {
-                        const selected = p.id === activeProjectId
-                        return (
-                          <li key={p.id}>
+                        {item.id === 'emails' && unreadMail > 0 && !collapsed && (
+                          <span className="text-[12px] font-semibold text-fg-2">
+                            {unreadMail}
+                            <span className="sr-only"> unread</span>
+                          </span>
+                        )}
+                      </Link>,
+                    )}
+  
+                    {item.id === 'projects' && active && !collapsed && projects.length > 0 && (
+                      <ul className="mt-1 ml-[36px] flex flex-col gap-0.5" aria-label="Projects">
+                        {visibleProjects(projects, activeProjectId).map((p) => {
+                          const selected = p.id === activeProjectId
+                          return (
+                            <li key={p.id}>
+                              <Link
+                                to={`/projects/${p.id}`}
+                                onClick={go}
+                                aria-current={selected ? 'page' : undefined}
+                                className={cx(
+                                  'tap block truncate rounded-[8px] px-3 py-1 text-[16px] leading-[21px] font-medium',
+                                  selected ? 'bg-active text-fg' : 'text-fg-2 hover:bg-hover hover:text-fg',
+                                )}
+                              >
+                                {p.name}
+                              </Link>
+                            </li>
+                          )
+                        })}
+                        {projects.length > MAX_PROJECTS && (
+                          <li>
                             <Link
-                              to={`/projects/${p.id}`}
+                              to="/projects"
                               onClick={go}
-                              aria-current={selected ? 'page' : undefined}
-                              className={cx(
-                                'tap block truncate rounded-[8px] px-3 py-1 text-[16px] leading-[21px] font-medium',
-                                selected ? 'bg-active text-fg' : 'text-fg-2 hover:bg-hover hover:text-fg',
-                              )}
+                              className="tap block rounded-[8px] px-3 py-1 text-[14px] leading-[21px] font-medium text-fg-2 hover:bg-hover hover:text-fg"
                             >
-                              {p.name}
+                              Show all ({projects.length})
                             </Link>
                           </li>
-                        )
-                      })}
-                    </ul>
-                  )}
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
+                        )}
+                      </ul>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </nav>
+        </ScrollFade>
 
-        <div className="flex flex-col gap-7">
-          <div className="flex flex-col gap-[13px]">
+        <div className="flex flex-col gap-4 border-t border-line pt-3">
+          <div className="flex flex-col gap-1">
             {withTip(
               'Settings',
               <Link to="/settings" onClick={go} aria-current={section === 'settings' ? 'page' : undefined} className={rowClass(section === 'settings', collapsed)}>
